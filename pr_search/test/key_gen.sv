@@ -23,7 +23,9 @@ module key_gen
 	output logic 						search_o,
 	output logic [(C_RULE_WIDTH-1):0] 	key_o);	
 
-
+	
+	logic						rstn;
+	
 	logic 						r_search;
 	logic [(C_RULE_WIDTH-1):0]	r_key;
 	logic [31:0]	            r_key_rndm;
@@ -31,10 +33,16 @@ module key_gen
 	logic [3:0] cnt_pause;
 	logic [3:0] cnt_gen;
 
-	enum logic [1:0] {INIT, KEY_G, STOP} state; 
+	enum logic [1:0] {INIT, KEY_G, STOP} state;  
+	
+	vk_areset #()
+    areset_inst (
+		.clk_i    (clk_i),
+    	.areset_i (rstn_i),
+   		.sreset_o (rstn));
 
-always_ff @(posedge clk_i) begin
-	if (~rstn_i) begin
+always_ff @(posedge clk_i or negedge rstn) begin
+	if (~rstn) begin
 		state    <= INIT;
 		r_search <= 1'b0;
 		r_key    <= '0;
@@ -71,9 +79,8 @@ always_ff @(posedge clk_i) begin
 	end 
 end	
 
-always_comb begin 
-	search_o = r_search;
-	key_o    = r_key;	
-end	
+assign search_o = r_search;
+assign key_o    = r_key;	
+	
 
 endmodule
