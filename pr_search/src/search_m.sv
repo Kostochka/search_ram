@@ -71,7 +71,7 @@ module search_m
 	logic [(C_NUM_TABLE-1):0]		r_busy; 
 	logic 							r_wake_up;
 
-	logic [C_SIZE_P:0] 				kk, jj;
+	//logic [C_SIZE_P:0] 				kk, jj;
 	logic [9:0]                     r_shift; 
 	logic [(C_RULE_WIDTH-1):0]      r_key;   
 	logic							r_search_state;
@@ -168,7 +168,7 @@ endgenerate
 //WRITE MEM
 ////////////////////////////////////////////  
 
-always_ff @(posedge clk_i) begin
+always_ff @(posedge clk_i or negedge rstn) begin
 	if (~rstn) begin
 		state_wr  	       <= IDLE;
 		r_state_cnf        <= '0;
@@ -213,7 +213,7 @@ always_ff @(posedge clk_i) begin
 			case (state_wr)	
 				IDLE: begin
 					r_wake_up <= 1'b1;			
-					for (kk=0; kk<C_NUM_TABLE; kk++) begin
+					for (int kk=0; kk<C_NUM_TABLE; kk++) begin
 						STR_MEM.weA[0][kk]   <= 1'b1;
 						STR_MEM.addrA[0][kk] <= STR_MEM.addrA[0][kk] + 1'b1;	
 						STR_MEM.diA[0][kk]   <= c_init_data;
@@ -337,7 +337,7 @@ end
 ////////////////////////////////////////////
 //SEARCH FOR MARKER
 ////////////////////////////////////////////
-always_ff @(posedge clk_i) begin
+always_ff @(posedge clk_i or negedge rstn) begin
 	if (~rstn) begin
 		state_sr <= INIT;
 		r_hit_vd <= 1'b0;
@@ -369,7 +369,7 @@ always_ff @(posedge clk_i) begin
 				INIT: begin
 					r_shift <= C_SIZE_MEM>>2;
 					STR_MEM.addrB <= '0;	
-					for (jj=0; jj<C_NUM_TABLE; jj++) begin
+					for (int jj=0; jj<C_NUM_TABLE; jj++) begin
 						STR_MEM.addrB[0][jj][(C_MEM_ADDR_WIDTH-1)] <= 1'b1;
 						STR_MEM.addrB[1][jj][(C_MEM_ADDR_WIDTH-1)] <= 1'b1;
 					end				
@@ -383,7 +383,7 @@ always_ff @(posedge clk_i) begin
 						r_key <= key_i;	
 						r_search_state <= 1'b1;
 						r_shift <= r_shift>>1;
-						for (jj=0; jj<C_NUM_TABLE; jj++) begin
+						for (int jj=0; jj<C_NUM_TABLE; jj++) begin
 							//if (~r_busy_tab[jj]) begin
 								if (STR_MEM.doB[~stab[jj]][jj][(C_MEM_DATA_WIDTH-1):(C_MEM_DATA_WIDTH-C_RULE_WIDTH)] == key_i) begin
 									r_hit_vd    <= 1'b1;
@@ -407,7 +407,7 @@ always_ff @(posedge clk_i) begin
 						r_search_state <= 1'b0;
 						r_shift <= C_SIZE_MEM>>2;
 						STR_MEM.addrB <= '0;	
-						for (jj=0; jj<C_NUM_TABLE; jj++) begin
+						for (int jj=0; jj<C_NUM_TABLE; jj++) begin
 							STR_MEM.addrB[0][jj][(C_MEM_ADDR_WIDTH-1)] <= 1'b1;
 							STR_MEM.addrB[1][jj][(C_MEM_ADDR_WIDTH-1)] <= 1'b1;
 						end
@@ -416,7 +416,7 @@ always_ff @(posedge clk_i) begin
 				SEARCH: begin
 					if (r_shift == '0) r_end_search <= 1'b1;
 					else r_shift <= r_shift>>1;
-					for (jj=0; jj<C_NUM_TABLE; jj++) begin
+					for (int jj=0; jj<C_NUM_TABLE; jj++) begin
 						//if (~r_busy_tab[jj]) begin
 							if (STR_MEM.doB[~r_stab[jj]][jj][(C_MEM_DATA_WIDTH-1):(C_MEM_DATA_WIDTH-C_RULE_WIDTH)] == r_key) begin
 								r_hit_vd 	<= 1'b1;
@@ -448,7 +448,7 @@ always_ff @(posedge clk_i) begin
 						r_end_search <= 1'b0; 
 						state_sr <= START;
 						STR_MEM.addrB <= '0;	
-						for (jj=0; jj<C_NUM_TABLE; jj++) begin
+						for (int jj=0; jj<C_NUM_TABLE; jj++) begin
 							STR_MEM.addrB[0][jj][(C_MEM_ADDR_WIDTH-1)] <= 1'b1;
 							STR_MEM.addrB[1][jj][(C_MEM_ADDR_WIDTH-1)] <= 1'b1;
 						end
