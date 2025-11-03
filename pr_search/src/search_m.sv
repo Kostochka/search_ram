@@ -20,7 +20,7 @@ module search_m
 	parameter C_DATA_IN_WIDTH   = 8,    // Bit width of input data, value: 8
 	parameter C_MEM_DATA_WIDTH  = 56,	// Bit width of data in ram
 	parameter C_MEM_ADDR_WIDTH  = 8,	// Bit width of addres in ram
-	parameter C_PORT            = 1)
+	parameter C_PORT            = 1)    // Number of port
 ( 	
 	input  logic 				 						clk_i,        // Input clock
 	input  logic 				 						rstn_i,		  // Input asynchronous reset, active '0'
@@ -38,7 +38,7 @@ module search_m
 
 	output logic 										hit_vd_o,	  // Strob, search finished, active '1'
 	output logic 										hit_o,		  // Strob, '1' - search was successful, '0' - search failed
-	output logic [3:0]                                  hit_tab_o,     // Output number table, addres in that was found rule
+	output logic [3:0]                                  hit_tab_o,    // Output number table, addres in that was found rule
 	output logic [(C_MEM_ADDR_WIDTH-1):0]               hit_addr_o,   // Output addres, addres in that was found rule
 	output logic [(C_MEM_DATA_WIDTH-C_RULE_WIDTH-1):0]	hit_data_o);  // Output data, data that was found in ram by rule						
 		
